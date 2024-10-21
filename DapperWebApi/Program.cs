@@ -1,3 +1,5 @@
+using DapperWebApi.Database;
+
 namespace DapperWebApi;
 
 public static class Program
@@ -6,11 +8,12 @@ public static class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         IServiceCollection services   = builder.Services;
-        IConfiguration configuration  = builder.Configuration;
+
+        string connectionString = builder.Configuration.GetConnectionString("PostgreSQL")!;
 
         // Add services to the container
         {
-
+            services.AddHostedService<MigrationBackgroundService>();
         }
 
         WebApplication app = builder.Build();
