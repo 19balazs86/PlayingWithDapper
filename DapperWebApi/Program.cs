@@ -9,11 +9,9 @@ public static class Program
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         IServiceCollection services   = builder.Services;
 
-        string connectionString = builder.Configuration.GetConnectionString("PostgreSQL")!;
-
         // Add services to the container
         {
-            services.AddHostedService<MigrationBackgroundService>();
+            services.AddDatabaseInfrastructure();
         }
 
         WebApplication app = builder.Build();
