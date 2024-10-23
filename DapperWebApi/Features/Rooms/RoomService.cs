@@ -5,8 +5,8 @@ namespace DapperWebApi.Features.Rooms;
 public interface IRoomService
 {
     public Task<IEnumerable<Room>> GetRoomsByTypes(string? roomTypeIds);
-
     public Task<Room?> GetRoomById(int id);
+    public Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
 }
 
 public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
@@ -33,6 +33,16 @@ public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
         }
 
         return await _roomRepository.GetRoomById(id);
+    }
+
+    public async Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
+    {
+        if (fromDate >= toDate)
+        {
+            return [];
+        };
+
+        return await _roomRepository.FindAvailableRooms(fromDate, toDate);
     }
 
     private static int[] toNumbers(string? roomTypeIds)

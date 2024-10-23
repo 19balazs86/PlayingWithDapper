@@ -7,6 +7,7 @@ public interface IRoomRepository
 {
     public Task<(IEnumerable<Room>, IEnumerable<RoomType>)> GetRoomsByTypes(IEnumerable<int> roomTypeIds);
     public Task<Room?> GetRoomById(int id);
+    public Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
 }
 
 public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepository
@@ -39,6 +40,16 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         FROM rooms r
         INNER JOIN room_types rt ON r.room_type_id = rt.id
         WHERE r.id = @id;
+        """;
+
+    private const string _sqlFindAvailableRooms =
+        """
+        SELECT r.id
+        FROM rooms r
+        LEFT JOIN bookings b
+          ON r.id = b.room_id
+        	AND ((b.start_date, b.end_date) OVERLAPS (@fromDate, @toDate))
+        WHERE b.id IS NULL;
         """;
     #endregion SQL
 
@@ -82,5 +93,18 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         );
 
         return rooms.SingleOrDefault();
+    }
+
+    public async Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
+    {
+        var connection = await _dbSession.OpenConnection();
+
+        var parameters = new
+        {
+            fromDate = fromDate.ToDateTime(TimeOnly.MinValue), // DateOnly is not supported
+            toDate   = toDate.ToDateTime(TimeOnly.MinValue)
+        };
+
+        return await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);
     }
 }
