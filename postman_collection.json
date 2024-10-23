@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "98a20e92-6584-4e55-907e-920b7f57b16d",
+		"name": "DapperORM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8316451"
+	},
+	"item": [
+		{
+			"name": "Get Rooms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/room?roomTypeIds=1,3",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"room"
+					],
+					"query": [
+						{
+							"key": "roomTypeIds",
+							"value": "1,3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Room",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/room/13",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"room",
+						"13"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Available Rooms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/room/available?fromDate=2024-10-10&toDate=2024-10-15",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"room",
+						"available"
+					],
+					"query": [
+						{
+							"key": "fromDate",
+							"value": "2024-10-10"
+						},
+						{
+							"key": "toDate",
+							"value": "2024-10-15"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Book a Room",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RoomId\": 1,\r\n    \"FromDate\": \"2024-10-05\",\r\n    \"ToDate\":   \"2024-10-10\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HostAddress}}/booking",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Booking partition",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/booking/create-partition?year=2024&month=10",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"booking",
+						"create-partition"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2024"
+						},
+						{
+							"key": "month",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check-in",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/booking/check-in/1",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"booking",
+						"check-in",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HostAddress",
+			"value": "http://localhost:5299",
+			"type": "string"
+		}
+	]
+}
