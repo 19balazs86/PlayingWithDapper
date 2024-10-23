@@ -33,8 +33,8 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         var parameters = new
         {
             bookingRequest.RoomId,
-            StartDate  = bookingRequest.FromDate.ToDateTime(TimeOnly.MinValue), // DateOnly is not supported
-            EndDate    = bookingRequest.ToDate.ToDateTime(TimeOnly.MinValue),
+            StartDate  = bookingRequest.FromDate.ToDateTime(), // DateOnly is not supported
+            EndDate    = bookingRequest.ToDate.ToDateTime(),
             TotalPrice = totalPrice
         };
 
@@ -50,8 +50,8 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         var parameters = new
         {
             partitionName     = partitionDetails.PartitionTableName,
-            fromDateInclusive = partitionDetails.FromDateInclusive.ToDateTime(TimeOnly.MinValue), // DateOnly is not supported
-            toDateExclusive   = partitionDetails.ToDateExclusive.ToDateTime(TimeOnly.MinValue)
+            fromDateInclusive = partitionDetails.FromDateInclusive.ToDateTime(), // DateOnly is not supported
+            toDateExclusive   = partitionDetails.ToDateExclusive.ToDateTime()
         };
 
         await connection.ExecuteAsync(_sqlCreatePartitionTable, parameters, transaction: _dbSession.Transaction);

@@ -130,11 +130,3 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         int numberOfROwsAffected = await connection.ExecuteAsync(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
     }
 }
-
-file static class DateOnlyExtensions
-{
-    public static DateTime ToDateTime(this DateOnly dateOnly)
-    {
-        return dateOnly.ToDateTime(TimeOnly.MinValue);
-    }
-}

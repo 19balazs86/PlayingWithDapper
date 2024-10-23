@@ -9,9 +9,7 @@ public static class RoomEndpoints
         var group = app.MapGroup("/room");
 
         group.MapGet("/", getRoomsByTypes);
-
-        group.MapGet("/{id:int}", getRoomById);
-
+        group.MapGet("/{id:int}",  getRoomById);
         group.MapGet("/available", getAvailableRooms);
     }
 

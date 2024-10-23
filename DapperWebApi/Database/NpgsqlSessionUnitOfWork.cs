@@ -27,6 +27,11 @@ public sealed class NpgsqlSessionUnitOfWork : IDatabaseSession, IDatabaseUnitOfW
 
     public async Task BeginTransaction(CancellationToken ct = default)
     {
+        if (Transaction is not null)
+        {
+            throw new InvalidOperationException("You can begin a transaction only once");
+        }
+
         NpgsqlConnection connection = await OpenConnection();
 
         Transaction = await connection.BeginTransactionAsync(ct);

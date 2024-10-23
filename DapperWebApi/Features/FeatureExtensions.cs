@@ -19,4 +19,9 @@ public static class FeatureExtensions
         app.MapRoomEndpoints();
         app.MapBookingEndpoints();
     }
+
+    public static DateTime ToDateTime(this DateOnly dateOnly)
+    {
+        return dateOnly.ToDateTime(TimeOnly.MinValue);
+    }
 }

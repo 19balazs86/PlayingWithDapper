@@ -9,7 +9,7 @@ public static class InfrastructureExtension
         services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
 
         services.AddScoped<NpgsqlSessionUnitOfWork>();
-        services.AddScoped<IDatabaseSession>(sp    => sp.GetRequiredService<NpgsqlSessionUnitOfWork>());
+        services.AddScoped<IDatabaseSession>(   sp => sp.GetRequiredService<NpgsqlSessionUnitOfWork>());
         services.AddScoped<IDatabaseUnitOfWork>(sp => sp.GetRequiredService<NpgsqlSessionUnitOfWork>());
     }
 }

@@ -82,7 +82,7 @@ public sealed class BookingService(
             4 or 5 or 6    => 2,
             7 or 8 or 9    => 3,
             10 or 11 or 12 => 4,
-            _              => throw new ArgumentOutOfRangeException("Month must be between 1 and 12")
+            _              => throw new ArgumentOutOfRangeException(nameof(month), "Month must be between 1 and 12")
         };
 
         DateOnly fromDateInclusive = quarter switch
@@ -91,7 +91,7 @@ public sealed class BookingService(
             2 => new DateOnly(year, 4,  1), // April   for Q2
             3 => new DateOnly(year, 7,  1), // July    for Q3
             4 => new DateOnly(year, 10, 1), // October for Q4
-            _ => throw new ArgumentOutOfRangeException("Quarter must be between 1 and 4")
+            _ => throw new ArgumentOutOfRangeException(nameof(quarter), "Quarter must be between 1 and 4")
         };
 
         DateOnly toDateExclusive = fromDateInclusive.AddMonths(3);

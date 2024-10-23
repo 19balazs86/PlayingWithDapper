@@ -5,7 +5,7 @@
     totalPrice NUMERIC
 ) RETURNS INT AS $$
 DECLARE
-    newBookingId INT;  -- Variable to hold the newly inserted booking ID
+    newBookingId INT;
 BEGIN
     -- Check for conflicting bookings
     -- Note: The following solution is not safe for race conditions but is sufficient
@@ -21,7 +21,7 @@ BEGIN
         -- Create the new booking and return the new ID
         INSERT INTO bookings(room_id, start_date, end_date, total_price)
         VALUES (roomId, startDate, endDate, totalPrice)
-        RETURNING id INTO newBookingId;  -- Capture the new booking ID
+        RETURNING id INTO newBookingId;
     ELSE
         RETURN NULL;  -- Return NULL if booking was not created due to conflicts
     END IF;

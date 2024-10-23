@@ -5,15 +5,10 @@ public interface IConnectionStringProvider
     string ConnectionString { get; }
 }
 
-public sealed class ConnectionStringProvider : IConnectionStringProvider
+public sealed class ConnectionStringProvider(IConfiguration _configuration) : IConnectionStringProvider
 {
-    private readonly string _connectionString;
+    private readonly string _connectionString = _configuration.GetConnectionString("PostgreSQL")
+        ?? throw new NullReferenceException("PostgreSQL connection string is missing");
 
     public string ConnectionString => _connectionString;
-
-    public ConnectionStringProvider(IConfiguration configuration)
-    {
-        _connectionString = configuration.GetConnectionString("PostgreSQL")
-            ?? throw new NullReferenceException("PostgreSQL connection string is missing");
-    }
 }
