@@ -18,15 +18,21 @@ CREATE TABLE rooms (
 CREATE INDEX idx_room_type ON rooms (room_type_id);
 
 CREATE TABLE bookings (
-    id SERIAL PRIMARY KEY,
+    id SERIAL,
     room_id INTEGER NOT NULL REFERENCES rooms(id),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     check_in_utc TIMESTAMP NULL,
     check_out_utc TIMESTAMP NULL,
-    CHECK (start_date < end_date) -- Ensure start_date is less than end_date
-);
+    CHECK (start_date < end_date), -- Ensure start_date is less than end_date
+    -- When using a partitioned table, any unique constraint on the parent table must include all the partitioning columns
+    PRIMARY KEY (id, start_date) -- Include start_date in the primary key
+) PARTITION BY RANGE (start_date);
+
+-- PostgreSQL partitioning divides large tables into smaller, manageable partitions for better performance and maintainability
 
 CREATE INDEX idx_booking_room_id ON bookings (room_id);
-CREATE INDEX idx_bookings_room_dates ON bookings (room_id, start_date, end_date);
+
+-- Based on the analysis report, this index is not being used with the queries
+-- CREATE INDEX idx_bookings_room_dates ON bookings (room_id, start_date, end_date);

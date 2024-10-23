@@ -1,7 +1,7 @@
 ﻿CREATE FUNCTION attempt_room_booking(
     roomId INT,
-    startDate TIMESTAMP WITH TIME ZONE,
-    endDate TIMESTAMP WITH TIME ZONE,
+    startDate TIMESTAMP WITHOUT TIME ZONE,
+    endDate TIMESTAMP WITHOUT TIME ZONE,
     totalPrice NUMERIC
 ) RETURNS INT AS $$
 DECLARE
