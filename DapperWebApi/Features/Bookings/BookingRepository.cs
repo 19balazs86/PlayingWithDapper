@@ -7,6 +7,7 @@ public interface IBookingRepository
 {
     public Task<int?> AttemptRoomBooking(BookingRequest bookingRequest, decimal totalPrice);
     public Task CreatePartitionTable(CreatePartitionDetails partitionDetails);
+    public Task<int?> CheckIn(int bookingId);
 }
 
 public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRepository
@@ -15,6 +16,14 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
     private const string _sqlAttemptRoomBooking = "SELECT attempt_room_booking(@RoomId, @StartDate, @EndDate, @TotalPrice)";
 
     private const string _sqlCreatePartitionTable = "CALL create_booking_partition(@partitionName, @fromDateInclusive, @toDateExclusive)";
+
+    private const string _sqlCheckIn =
+        """
+        UPDATE bookings
+        SET check_in_utc = @checkInTime
+        WHERE id = @id
+        RETURNING room_id;
+        """;
     #endregion
 
     public async Task<int?> AttemptRoomBooking(BookingRequest bookingRequest, decimal totalPrice)
@@ -49,5 +58,16 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
 
         // I had an issue: procedure create_booking_partition(...) does not exist
         // await connection.ExecuteAsync("create_booking_partition", parameters, commandType: CommandType.StoredProcedure, transaction: _dbSession.Transaction);
+    }
+
+    public async Task<int?> CheckIn(int bookingId)
+    {
+        var connection = await _dbSession.OpenConnection();
+
+        var parameters = new { id = bookingId, checkInTime = DateTime.UtcNow };
+
+        int? roomId = connection.ExecuteScalar<int?>(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
+
+        return roomId;
     }
 }

@@ -8,6 +8,7 @@ public static class BookingEndpoints
     {
         app.MapPost("/booking", postBookingRequest);
         app.MapPost("/booking/create-partition", postCreatePartition);
+        app.MapPut("/booking/check-in/{bookingId:int}", putCheckIn);
     }
 
     private static async Task<string> postBookingRequest(IBookingService bookingService, BookingRequest request)
@@ -22,5 +23,10 @@ public static class BookingEndpoints
     private static async Task postCreatePartition(IBookingService bookingService, int year, int month)
     {
         await bookingService.CreatePartitionTable(year, month);
+    }
+
+    private static async Task putCheckIn(IBookingService bookingService, int bookingId)
+    {
+        await bookingService.CheckIn(bookingId);
     }
 }

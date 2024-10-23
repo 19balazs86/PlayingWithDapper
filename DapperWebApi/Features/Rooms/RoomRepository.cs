@@ -8,6 +8,7 @@ public interface IRoomRepository
     public Task<(IEnumerable<Room>, IEnumerable<RoomType>)> GetRoomsByTypes(IEnumerable<int> roomTypeIds);
     public Task<Room?> GetRoomById(int id);
     public Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
+    public Task CheckIn(int roomId);
 }
 
 public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepository
@@ -50,6 +51,13 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
           ON r.id = b.room_id
         	AND ((b.start_date, b.end_date) OVERLAPS (@fromDate, @toDate))
         WHERE b.id IS NULL;
+        """;
+
+    private const string _sqlCheckIn =
+        """
+        UPDATE rooms
+        SET available = @isAvailable
+        WHERE id = @id;
         """;
     #endregion SQL
 
@@ -106,5 +114,14 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         };
 
         return await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);
+    }
+
+    public async Task CheckIn(int roomId)
+    {
+        var connection = await _dbSession.OpenConnection();
+
+        var parameters = new { id = roomId, isAvailable = false };
+
+        int numberOfROwsAffected = await connection.ExecuteAsync(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
     }
 }

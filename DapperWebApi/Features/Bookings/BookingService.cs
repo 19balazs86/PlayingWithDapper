@@ -1,4 +1,5 @@
-﻿using DapperWebApi.Features.Rooms;
+﻿using DapperWebApi.Database;
+using DapperWebApi.Features.Rooms;
 
 namespace DapperWebApi.Features.Bookings;
 
@@ -8,9 +9,14 @@ public interface IBookingService
 {
     public Task<int?> AttemptRoomBooking(BookingRequest bookingRequest);
     public Task CreatePartitionTable(int year, int month);
+    public Task CheckIn(int bookingId);
 }
 
-public sealed class BookingService(IBookingRepository _bookingRepository, IRoomService _roomService) : IBookingService
+public sealed class BookingService(
+    IBookingRepository _bookingRepository,
+    IRoomRepository _roomRepository,
+    IRoomService _roomService,
+    IDatabaseUnitOfWork _unitOfWork) : IBookingService
 {
     public async Task<int?> AttemptRoomBooking(BookingRequest bookingRequest)
     {
@@ -46,6 +52,23 @@ public sealed class BookingService(IBookingRepository _bookingRepository, IRoomS
         await _bookingRepository.CreatePartitionTable(partitionDetails);
     }
 
+    public async Task CheckIn(int bookingId)
+    {
+        await _unitOfWork.BeginTransaction();
+
+        int? roomId = await _bookingRepository.CheckIn(bookingId);
+
+        if (roomId.HasValue)
+        {
+            await _roomRepository.CheckIn(roomId.Value);
+
+            await _unitOfWork.CommitTransaction();
+        }
+
+        // It is not necessary to call RollbackTransaction, as it is not committed and gets disposed
+        // await _unitOfWork.RollbackTransaction();
+    }
+
     private static CreatePartitionDetails quarterOfYear(int year, int month)
     {
         int quarter = month switch
@@ -59,9 +82,9 @@ public sealed class BookingService(IBookingRepository _bookingRepository, IRoomS
 
         DateOnly fromDateInclusive = quarter switch
         {
-            1 => new DateOnly(year, 1, 1),  // January for Q1
-            2 => new DateOnly(year, 4, 1),  // April   for Q2
-            3 => new DateOnly(year, 7, 1),  // July    for Q3
+            1 => new DateOnly(year, 1,  1), // January for Q1
+            2 => new DateOnly(year, 4,  1), // April   for Q2
+            3 => new DateOnly(year, 7,  1), // July    for Q3
             4 => new DateOnly(year, 10, 1), // October for Q4
             _ => throw new ArgumentOutOfRangeException("Quarter must be between 1 and 4")
         };
