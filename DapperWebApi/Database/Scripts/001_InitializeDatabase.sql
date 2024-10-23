@@ -26,7 +26,7 @@ CREATE TABLE bookings (
     check_in_utc TIMESTAMP NULL,
     check_out_utc TIMESTAMP NULL,
     CHECK (start_date < end_date), -- Ensure start_date is less than end_date
-    -- When using a partitioned table, any unique constraint on the parent table must include all the partitioning columns
+    -- When using a partitioned table, the constraint field in the parent table must be included in the primary key
     PRIMARY KEY (id, start_date) -- Include start_date in the primary key
 ) PARTITION BY RANGE (start_date);
 
@@ -34,5 +34,10 @@ CREATE TABLE bookings (
 
 CREATE INDEX idx_booking_room_id ON bookings (room_id);
 
--- Based on the analysis report, this index is not being used with the queries
+-- Based on the analysis report, these indexes are not being used by FindAvailableRooms
+-- Since the bookings table is partitioned by start_date
+-- Using the correct query excludes the unnecessary partitions, and there is no strong need for the index
+
 -- CREATE INDEX idx_bookings_room_dates ON bookings (room_id, start_date, end_date);
+-- CREATE INDEX idx_bookings_tsrange ON bookings USING GIST (tsrange(start_date, end_date));
+-- CREATE INDEX idx_bookings_dates ON bookings (start_date, end_date);

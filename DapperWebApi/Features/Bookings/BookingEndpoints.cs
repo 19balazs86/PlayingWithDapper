@@ -6,9 +6,11 @@ public static class BookingEndpoints
 {
     public static void MapBookingEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/booking", postBookingRequest);
-        app.MapPost("/booking/create-partition", postCreatePartition);
-        app.MapPut("/booking/check-in/{bookingId:int}", putCheckIn);
+        var group = app.MapGroup("/booking");
+
+        group.MapPost("/", postBookingRequest);
+        group.MapPost("/create-partition", postCreatePartition);
+        group.MapPut("/check-in/{bookingId:int}", putCheckIn);
     }
 
     private static async Task<string> postBookingRequest(IBookingService bookingService, BookingRequest request)

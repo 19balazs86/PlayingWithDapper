@@ -18,9 +18,16 @@ public sealed class BookingService(
     IRoomService _roomService,
     IDatabaseUnitOfWork _unitOfWork) : IBookingService
 {
+    // Maximum number of days allowed for booking
+    // This restriction can enhance query performance in finding available rooms by excluding partitions of the bookings table
+    public const int MaxBookingDays = 30; // TODO: Place it in configuration
+
     public async Task<int?> AttemptRoomBooking(BookingRequest bookingRequest)
     {
-        if (bookingRequest.FromDate >= bookingRequest.ToDate)
+        int numberOfBookingDays = bookingRequest.ToDate.DayNumber - bookingRequest.FromDate.DayNumber;
+
+        // TODO: Use the Result pattern for validation response
+        if (bookingRequest.FromDate >= bookingRequest.ToDate || numberOfBookingDays > MaxBookingDays)
         {
             return null;
         }
@@ -31,8 +38,6 @@ public sealed class BookingService(
         {
             return null;
         }
-
-        int numberOfBookingDays = bookingRequest.ToDate.DayNumber - bookingRequest.FromDate.DayNumber;
 
         decimal totalPrice = room.RoomType!.Price * numberOfBookingDays;
 

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DapperWebApi.Database;
+using DapperWebApi.Features.Bookings;
 
 namespace DapperWebApi.Features.Rooms;
 
@@ -49,6 +50,8 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         FROM rooms r
         LEFT JOIN bookings b
           ON r.id = b.room_id
+            AND b.start_date >= @pastBookingDate   -- Given start_date - 30 days | exclude bookings that are too old
+            AND b.start_date <= @futureBookingDate -- Given end_date   + 30 days | exclude bookings that are too far in the future
         	AND ((b.start_date, b.end_date) OVERLAPS (@fromDate, @toDate))
         WHERE b.id IS NULL;
         """;
@@ -109,8 +112,10 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
 
         var parameters = new
         {
-            fromDate = fromDate.ToDateTime(TimeOnly.MinValue), // DateOnly is not supported
-            toDate   = toDate.ToDateTime(TimeOnly.MinValue)
+            fromDate          = fromDate.ToDateTime(), // DateOnly is not supported
+            toDate            = toDate.ToDateTime(),
+            pastBookingDate   = fromDate.AddDays(-BookingService.MaxBookingDays).ToDateTime(),
+            futureBookingDate = toDate.AddDays(BookingService.MaxBookingDays).ToDateTime(),
         };
 
         return await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);
@@ -123,5 +128,13 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         var parameters = new { id = roomId, isAvailable = false };
 
         int numberOfROwsAffected = await connection.ExecuteAsync(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
+    }
+}
+
+file static class DateOnlyExtensions
+{
+    public static DateTime ToDateTime(this DateOnly dateOnly)
+    {
+        return dateOnly.ToDateTime(TimeOnly.MinValue);
     }
 }

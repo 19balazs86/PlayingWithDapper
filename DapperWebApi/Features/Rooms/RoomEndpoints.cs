@@ -6,11 +6,13 @@ public static class RoomEndpoints
 {
     public static void MapRoomEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/room", getRoomsByTypes);
+        var group = app.MapGroup("/room");
 
-        app.MapGet("/room/{id:int}", getRoomById);
+        group.MapGet("/", getRoomsByTypes);
 
-        app.MapGet("/room/available", getAvailableRooms);
+        group.MapGet("/{id:int}", getRoomById);
+
+        group.MapGet("/available", getAvailableRooms);
     }
 
     private static async Task<IEnumerable<Room>> getRoomsByTypes(IRoomService roomService, string? roomTypeIds)
