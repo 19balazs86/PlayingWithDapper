@@ -41,7 +41,22 @@ public sealed class BookingService(
 
         decimal totalPrice = room.RoomType!.Price * numberOfBookingDays;
 
-        return await _bookingRepository.AttemptRoomBooking(bookingRequest, totalPrice);
+        // The attempt_room_booking function locks the room to prevent a race condition when booking the same room (more details can be found in the SQL file)
+        await _unitOfWork.BeginTransaction();
+
+        int? bookingId = await _bookingRepository.AttemptRoomBooking(bookingRequest, totalPrice);
+
+        if (bookingId.HasValue)
+        {
+            await _unitOfWork.CommitTransaction();
+        }
+        else
+        {
+            // It is not necessary to call RollbackTransaction, as it is not committed and gets disposed
+            await _unitOfWork.RollbackTransaction();
+        }
+
+        return bookingId;
     }
 
     public async Task CreatePartitionTable(int year, int month)
@@ -69,9 +84,11 @@ public sealed class BookingService(
 
             await _unitOfWork.CommitTransaction();
         }
-
-        // It is not necessary to call RollbackTransaction, as it is not committed and gets disposed
-        // await _unitOfWork.RollbackTransaction();
+        else
+        {
+            // It is not necessary to call RollbackTransaction, as it is not committed and gets disposed
+            await _unitOfWork.RollbackTransaction();
+        }
     }
 
     private static CreatePartitionDetails quarterOfYear(int year, int month)
