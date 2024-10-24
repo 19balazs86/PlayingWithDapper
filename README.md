@@ -1,7 +1,7 @@
 # Playing with Dapper
 
 - In this repository, there is a Web API for a very simple hotel booking system
-- Even though the domain is simplified, it was good to try out certain Dapper features
+- Even though the domain is simplified, it is still beneficial to work with Dapper's features
 - There is an implementation of the Unit of Work design pattern to manage transactions between the repositories
 - I used Postgres and DbUp for database migration
 

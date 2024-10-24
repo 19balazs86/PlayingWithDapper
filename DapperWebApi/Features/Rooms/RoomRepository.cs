@@ -85,7 +85,9 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
     {
         var connection = await _dbSession.OpenConnection();
 
-        IEnumerable<Room> rooms = await connection.QueryAsync<Room, RoomType, Room>(_sqlRoomById,
+        // Room? room = await connection.QuerySingleOrDefaultAsync<Room?>("SELECT id, room_type_id AS RoomTypeId, name, available FROM rooms WHERE id = @id;", new { id }, transaction: _dbSession.Transaction);
+
+        IEnumerable <Room> rooms = await connection.QueryAsync<Room, RoomType, Room>(_sqlRoomById,
             map: static (room, roomType) =>
             {
                 room.RoomType = roomType;
