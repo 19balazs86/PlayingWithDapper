@@ -15,12 +15,20 @@ public interface IRoomRepository
 public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepository
 {
     #region SQL
-    private const string _sqlRooms =
-        """
-        SELECT id, room_type_id AS RoomTypeId, name, available
+    private const string _sqlRooms = // By using this concept with the nameof keyword, you can avoid issues when renaming or deleting properties
+        $"""
+        SELECT
+            id AS {nameof(Room.Id)},
+            room_type_id AS {nameof(Room.RoomTypeId)},
+            name AS {nameof(Room.Name)},
+            available AS {nameof(Room.Available)}
         FROM rooms;
         ---
-        SELECT id, name, description, price
+        SELECT
+            id AS {nameof(RoomType.Id)},
+            name AS {nameof(RoomType.Name)},
+            description AS {nameof(RoomType.Description)},
+            price AS {nameof(RoomType.Price)}
         FROM room_types;
         """;
 
