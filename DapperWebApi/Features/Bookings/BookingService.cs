@@ -34,7 +34,7 @@ public sealed class BookingService(
 
         Room? room = await _roomService.GetRoomById(bookingRequest.RoomId);
 
-        if (room is null || room.RoomType is null)
+        if (room?.RoomType is null)
         {
             return null;
         }

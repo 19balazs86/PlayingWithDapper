@@ -4,18 +4,18 @@ namespace DapperWebApi.Features.Rooms;
 
 public interface IRoomService
 {
-    public Task<IEnumerable<Room>> GetRoomsByTypes(string? roomTypeIds);
+    public Task<Room[]> GetRoomsByTypes(string? roomTypeIds);
     public Task<Room?> GetRoomById(int id);
-    public Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
+    public Task<int[]> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
 }
 
 public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
 {
-    public async Task<IEnumerable<Room>> GetRoomsByTypes(string? roomTypeIds)
+    public async Task<Room[]> GetRoomsByTypes(string? roomTypeIds)
     {
         int[] roomTypeIdArray = toNumbers(roomTypeIds);
 
-        var (rooms, roomTypes) = await _roomRepository.GetRoomsByTypes(roomTypeIdArray);
+        (Room[] rooms, RoomType[] roomTypes) = await _roomRepository.GetRoomsByTypes(roomTypeIdArray);
 
         foreach (Room room in rooms)
         {
@@ -35,7 +35,7 @@ public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
         return await _roomRepository.GetRoomById(id);
     }
 
-    public async Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
+    public async Task<int[]> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
     {
         if (fromDate >= toDate)
         {
@@ -66,6 +66,6 @@ public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
             }
         }
 
-        return [..hashSet];
+        return [.. hashSet];
     }
 }

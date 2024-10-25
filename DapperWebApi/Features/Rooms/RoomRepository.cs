@@ -6,9 +6,9 @@ namespace DapperWebApi.Features.Rooms;
 
 public interface IRoomRepository
 {
-    public Task<(IEnumerable<Room>, IEnumerable<RoomType>)> GetRoomsByTypes(IEnumerable<int> roomTypeIds);
+    public Task<(Room[], RoomType[])> GetRoomsByTypes(int[] roomTypeIds);
     public Task<Room?> GetRoomById(int id);
-    public Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
+    public Task<int[]> FindAvailableRooms(DateOnly fromDate, DateOnly toDate);
     public Task CheckIn(int roomId);
 }
 
@@ -64,7 +64,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         """;
     #endregion SQL
 
-    public async Task<(IEnumerable<Room>, IEnumerable<RoomType>)> GetRoomsByTypes(IEnumerable<int> roomTypeIds)
+    public async Task<(Room[], RoomType[])> GetRoomsByTypes(int[] roomTypeIds)
     {
         var connection = await _dbSession.OpenConnection();
 
@@ -78,7 +78,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
 
         IEnumerable<RoomType> roomTypes = await reader.ReadAsync<RoomType>();
 
-        return (rooms, roomTypes);
+        return ([.. rooms], [.. roomTypes]);
     }
 
     public async Task<Room?> GetRoomById(int id)
@@ -108,7 +108,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
         return rooms.SingleOrDefault();
     }
 
-    public async Task<IEnumerable<int>> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
+    public async Task<int[]> FindAvailableRooms(DateOnly fromDate, DateOnly toDate)
     {
         var connection = await _dbSession.OpenConnection();
 
@@ -120,7 +120,9 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
             futureBookingDate = toDate.AddDays(BookingService.MaxBookingDays).ToDateTime(),
         };
 
-        return await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);
+        IEnumerable<int> roomIds = await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);
+
+        return [.. roomIds];
     }
 
     public async Task CheckIn(int roomId)
@@ -129,6 +131,6 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
 
         var parameters = new { id = roomId, isAvailable = false };
 
-        int numberOfROwsAffected = await connection.ExecuteAsync(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
+        await connection.ExecuteAsync(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
     }
 }
