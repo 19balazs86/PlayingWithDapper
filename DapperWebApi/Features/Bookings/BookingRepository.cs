@@ -97,6 +97,7 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
 
                 // When using Many-to-One or One-to-Many queries, you need to handle the mapping between entities due to the SQL query’s structure, which can result in data duplication related to the 'One' side.
                 // Similar to the SplitQuery in Entity Framework, you can use the QueryMultiple method with multiple selects. See the example in RoomRepository.GetRoomsByTypes
+                // If it is the other way around and you populate the Room.Bookings list. You still keep the Rooms in the dictionary by ID, but when you retrieve it, you add a booking to the list
 
                 if (roomsDictionary.TryGetValue(room.Id, out Room? existingRoom))
                 {
