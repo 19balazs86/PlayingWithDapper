@@ -30,6 +30,30 @@
 			"response": []
 		},
 		{
+			"name": "Find Bookings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HostAddress}}/booking/by-room-types?roomTypeIds=1,3",
+					"host": [
+						"{{HostAddress}}"
+					],
+					"path": [
+						"booking",
+						"by-room-types"
+					],
+					"query": [
+						{
+							"key": "roomTypeIds",
+							"value": "1,3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Room",
 			"request": {
 				"method": "GET",

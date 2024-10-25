@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DapperWebApi.Database;
+using DapperWebApi.Features.Rooms;
 
 namespace DapperWebApi.Features.Bookings;
 
@@ -8,6 +9,7 @@ public interface IBookingRepository
     public Task<int?> AttemptRoomBooking(BookingRequest bookingRequest, decimal totalPrice);
     public Task CreatePartitionTable(CreatePartitionDetails partitionDetails);
     public Task<int?> CheckIn(int bookingId);
+    public Task<Booking[]> FindBookingsByRoomTypes(int[] roomTypeIds);
 }
 
 public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRepository
@@ -23,6 +25,15 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         SET check_in_utc = @checkInTime
         WHERE id = @id
         RETURNING room_id;
+        """;
+
+    private string _sqlFindBookingsByRoomTypes =
+        """
+        SELECT b.id, b.room_id as RoomId, b.start_date AS StartDate, b.end_date AS EndDate, b.total_price AS TotalPrice, b.check_in_utc AS CheckInUtc, b.check_out_utc AS CheckOutUtc,
+               r.id, r.room_type_id AS RoomTypeId, r.name, r.available
+        FROM bookings b
+        INNER JOIN rooms r ON r.id = b.room_id and r.room_type_id in ({0}) -- The expression "IN @roomTypeIds" does not function correctly as an array parameter
+        LIMIT 100; -- This is enough...
         """;
     #endregion
 
@@ -69,5 +80,41 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         int? roomId = connection.ExecuteScalar<int?>(_sqlCheckIn, parameters, transaction: _dbSession.Transaction);
 
         return roomId;
+    }
+
+    public async Task<Booking[]> FindBookingsByRoomTypes(int[] roomTypeIds)
+    {
+        string sql = string.Format(_sqlFindBookingsByRoomTypes, string.Join(',', roomTypeIds));
+
+        var connection = await _dbSession.OpenConnection();
+
+        Dictionary<int, Room> roomsDictionary = [];
+
+        IEnumerable<Booking> bookings = await connection.QueryAsync<Booking, Room, Booking>(sql,
+            map: (booking, room) =>
+            {
+                // Using Relationships: https://www.learndapper.com/relationships
+
+                // When using Many-to-One or One-to-Many queries, you need to handle the mapping between entities due to the SQL query’s structure, which can result in data duplication related to the 'One' side.
+                // Similar to the SplitQuery in Entity Framework, you can use the QueryMultiple method with multiple selects. See the example in RoomRepository.GetRoomsByTypes
+
+                if (roomsDictionary.TryGetValue(room.Id, out Room? existingRoom))
+                {
+                    booking.Room = existingRoom;
+                }
+                else
+                {
+                    booking.Room = room;
+
+                    roomsDictionary[room.Id] = room;
+                }
+
+                return booking;
+            },
+            splitOn: "id",
+            transaction: _dbSession.Transaction
+        );
+
+        return [.. bookings];
     }
 }

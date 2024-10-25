@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace DapperWebApi.Features.Rooms;
+﻿namespace DapperWebApi.Features.Rooms;
 
 public interface IRoomService
 {
@@ -13,7 +11,7 @@ public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
 {
     public async Task<Room[]> GetRoomsByTypes(string? roomTypeIds)
     {
-        int[] roomTypeIdArray = toNumbers(roomTypeIds);
+        int[] roomTypeIdArray = roomTypeIds.ToNumbers();
 
         (Room[] rooms, RoomType[] roomTypes) = await _roomRepository.GetRoomsByTypes(roomTypeIdArray);
 
@@ -43,29 +41,5 @@ public sealed class RoomService(IRoomRepository _roomRepository) : IRoomService
         };
 
         return await _roomRepository.FindAvailableRooms(fromDate, toDate);
-    }
-
-    private static int[] toNumbers(string? roomTypeIds)
-    {
-        if (string.IsNullOrWhiteSpace(roomTypeIds))
-        {
-            return [];
-        }
-
-        // Span example: https://github.com/19balazs86/PlayingWithYARP/blob/master/ProxyYARP/Miscellaneous/RateLimiterPolicyByIPAddress.cs#L62
-
-        var tokenizer = new StringTokenizer(roomTypeIds, [',']);
-
-        HashSet<int> hashSet = [];
-
-        foreach (StringSegment segment in tokenizer)
-        {
-            if (int.TryParse(segment, out int id) && id > 0) // No need segment.Trim()
-            {
-                hashSet.Add(id);
-            }
-        }
-
-        return [.. hashSet];
     }
 }

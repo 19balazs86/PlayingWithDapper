@@ -80,6 +80,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
             string.Format(_sqlRoomsWithRoomTypes, string.Join(',', roomTypeIds)) :
             _sqlRooms;
 
+        // Other example of Many-to-One or One-to-Many in BookingRepository.FindBookingsByRoomTypes
         await using var reader = await connection.QueryMultipleAsync(query, transaction: _dbSession.Transaction);
 
         IEnumerable<Room> rooms = await reader.ReadAsync<Room>();

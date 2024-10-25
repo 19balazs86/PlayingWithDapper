@@ -1,5 +1,6 @@
 using DapperWebApi.Database;
 using DapperWebApi.Features;
+using System.Text.Json.Serialization;
 
 namespace DapperWebApi;
 
@@ -16,7 +17,11 @@ public static class Program
 
             services.AddFeatures();
 
-            services.ConfigureHttpJsonOptions(options => options.SerializerOptions.PropertyNamingPolicy = null); // null makes is PascalCase. Default: JsonNamingPolicy.CamelCase;
+            services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy   = null; // null makes is PascalCase. Default: JsonNamingPolicy.CamelCase;
+                options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
         }
 
         WebApplication app = builder.Build();

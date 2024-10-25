@@ -10,6 +10,7 @@ public interface IBookingService
     public Task<int?> AttemptRoomBooking(BookingRequest bookingRequest);
     public Task CreatePartitionTable(int year, int month);
     public Task CheckIn(int bookingId);
+    public Task<Booking[]> FindBookingsByRoomTypes(string? roomTypeIds);
 }
 
 public sealed class BookingService(
@@ -89,6 +90,13 @@ public sealed class BookingService(
             // It is not necessary to call RollbackTransaction, as it is not committed and gets disposed
             await _unitOfWork.RollbackTransaction();
         }
+    }
+
+    public async Task<Booking[]> FindBookingsByRoomTypes(string? roomTypeIds)
+    {
+        int[] roomTypeIdArray = roomTypeIds.ToNumbers();
+
+        return await _bookingRepository.FindBookingsByRoomTypes(roomTypeIdArray);
     }
 
     private static CreatePartitionDetails quarterOfYear(int year, int month)
