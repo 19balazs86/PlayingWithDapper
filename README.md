@@ -10,6 +10,7 @@
 #### 🧰 `Dapper`
 
 - [Learn Dapper](https://www.learndapper.com) 📓*Official*
+- [Dapper.SqlBuilder](https://github.com/DapperLib/Dapper/tree/main/Dapper.SqlBuilder) 👤*Simple sql formatter*
 - [Getting started with Dapper](https://youtu.be/F1ONxvjdLlc) 📽️*24 min - Nick Chapsas*
 - [Dapper and SQL Server Database relationships](https://youtu.be/OPedaRBwNUA) 📽️*1h:15min - Patrick God*
 
