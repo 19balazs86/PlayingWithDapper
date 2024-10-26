@@ -81,6 +81,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
             _sqlRooms;
 
         // Other example of Many-to-One or One-to-Many in BookingRepository.FindBookingsByRoomTypes
+        // QueryMultiple is similar to the SplitQuery in Entity Framework
         await using var reader = await connection.QueryMultipleAsync(query, transaction: _dbSession.Transaction);
 
         IEnumerable<Room> rooms = await reader.ReadAsync<Room>();
@@ -109,6 +110,7 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
             // A comma-separated value is used for multiple joins in a single query
             // Specifies the column name(s) where Dapper should start mapping the results to a different object. In this case, it is rt.id.
             // Simple test, change the sql: ... rt.id AS RTID, 99 as id, rt.name ... > splitOn: "RTID" and the RoomType.Id = 99
+            // Patrick God video: https://youtu.be/OPedaRBwNUA?t=1441
             splitOn: "id",
 
             transaction: _dbSession.Transaction
@@ -123,8 +125,8 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
 
         var parameters = new
         {
-            fromDate          = fromDate, // DateOnly is not supported
-            toDate            = toDate,
+            fromDate,
+            toDate,
             pastBookingDate   = fromDate.AddDays(-BookingService.MaxBookingDays),
             futureBookingDate = toDate.AddDays(BookingService.MaxBookingDays),
         };

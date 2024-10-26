@@ -17,7 +17,7 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
     #region SQL
     private const string _sqlAttemptRoomBooking = "SELECT attempt_room_booking(@RoomId, @StartDate, @EndDate, @TotalPrice)";
 
-    private const string _sqlCreatePartitionTable = "CALL create_booking_partition(@partitionName, @fromDateInclusive, @toDateExclusive)";
+    private const string _sqlCreatePartitionTable = "CALL create_booking_partition(@PartitionTableName, @FromDateInclusive, @ToDateExclusive)";
 
     private const string _sqlCheckIn =
         """
@@ -58,14 +58,7 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
     {
         var connection = await _dbSession.OpenConnection();
 
-        var parameters = new
-        {
-            partitionName     = partitionDetails.PartitionTableName,
-            fromDateInclusive = partitionDetails.FromDateInclusive,
-            toDateExclusive   = partitionDetails.ToDateExclusive
-        };
-
-        await connection.ExecuteAsync(_sqlCreatePartitionTable, parameters, transaction: _dbSession.Transaction);
+        await connection.ExecuteAsync(_sqlCreatePartitionTable, param: partitionDetails, transaction: _dbSession.Transaction);
 
         // I had an issue: procedure create_booking_partition(...) does not exist
         // await connection.ExecuteAsync("create_booking_partition", parameters, commandType: CommandType.StoredProcedure, transaction: _dbSession.Transaction);
