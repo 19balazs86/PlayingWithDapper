@@ -21,11 +21,6 @@ public static class FeatureExtensions
         app.MapBookingEndpoints();
     }
 
-    public static DateTime ToDateTime(this DateOnly dateOnly)
-    {
-        return dateOnly.ToDateTime(TimeOnly.MinValue);
-    }
-
     public static int[] ToNumbers(this string? roomTypeIds)
     {
         if (string.IsNullOrWhiteSpace(roomTypeIds))

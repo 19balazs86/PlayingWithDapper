@@ -123,10 +123,10 @@ public sealed class RoomRepository(IDatabaseSession _dbSession) : IRoomRepositor
 
         var parameters = new
         {
-            fromDate          = fromDate.ToDateTime(), // DateOnly is not supported
-            toDate            = toDate.ToDateTime(),
-            pastBookingDate   = fromDate.AddDays(-BookingService.MaxBookingDays).ToDateTime(),
-            futureBookingDate = toDate.AddDays(BookingService.MaxBookingDays).ToDateTime(),
+            fromDate          = fromDate, // DateOnly is not supported
+            toDate            = toDate,
+            pastBookingDate   = fromDate.AddDays(-BookingService.MaxBookingDays),
+            futureBookingDate = toDate.AddDays(BookingService.MaxBookingDays),
         };
 
         IEnumerable<int> roomIds = await connection.QueryAsync<int>(_sqlFindAvailableRooms, parameters, transaction: _dbSession.Transaction);

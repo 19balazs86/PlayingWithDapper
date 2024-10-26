@@ -27,7 +27,7 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         RETURNING room_id;
         """;
 
-    private string _sqlFindBookingsByRoomTypes =
+    private const string _sqlFindBookingsByRoomTypes =
         """
         SELECT b.id, b.room_id as RoomId, b.start_date AS StartDate, b.end_date AS EndDate, b.total_price AS TotalPrice, b.check_in_utc AS CheckInUtc, b.check_out_utc AS CheckOutUtc,
                r.id, r.room_type_id AS RoomTypeId, r.name, r.available
@@ -44,8 +44,8 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         var parameters = new
         {
             bookingRequest.RoomId,
-            StartDate  = bookingRequest.FromDate.ToDateTime(), // DateOnly is not supported
-            EndDate    = bookingRequest.ToDate.ToDateTime(),
+            StartDate  = bookingRequest.FromDate,
+            EndDate    = bookingRequest.ToDate,
             TotalPrice = totalPrice
         };
 
@@ -61,8 +61,8 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
         var parameters = new
         {
             partitionName     = partitionDetails.PartitionTableName,
-            fromDateInclusive = partitionDetails.FromDateInclusive.ToDateTime(), // DateOnly is not supported
-            toDateExclusive   = partitionDetails.ToDateExclusive.ToDateTime()
+            fromDateInclusive = partitionDetails.FromDateInclusive,
+            toDateExclusive   = partitionDetails.ToDateExclusive
         };
 
         await connection.ExecuteAsync(_sqlCreatePartitionTable, parameters, transaction: _dbSession.Transaction);
