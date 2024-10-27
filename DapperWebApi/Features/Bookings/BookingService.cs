@@ -42,6 +42,11 @@ public sealed class BookingService(
 
         decimal totalPrice = room.RoomType!.Price * numberOfBookingDays;
 
+        // - Functions: cannot start a transaction. Instead, they run within the current transaction context.
+        //   - If there is no active transaction, each statement commits individually.
+        // - Stored procedures: do start a new transaction, if one is not already in progress.
+        //   - If it called within an existing transaction, it will execute within that transaction.
+
         // The attempt_room_booking function locks the room to prevent a race condition when booking the same room (more details can be found in the SQL file)
         await _unitOfWork.BeginTransaction();
 
