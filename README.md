@@ -13,6 +13,8 @@
 - [Dapper.SqlBuilder](https://github.com/DapperLib/Dapper/tree/main/Dapper.SqlBuilder) 👤*Simple sql formatter*
 - [Getting started with Dapper](https://youtu.be/F1ONxvjdLlc) 📽️*24 min - Nick Chapsas*
 - [Dapper and SQL Server Database relationships](https://youtu.be/OPedaRBwNUA) 📽️*1h:15min - Patrick God*
+- [Building a Dapper generic CRUD repository from scratch](https://youtu.be/9YGByZqzOaY) 📽️*1h:16min - Remigiusz Zalewski*
+  - [Generating SQL queries with a Source Generator](https://github.com/19balazs86/PlayingWithSourceGenerator/blob/master/SourceGeneratorLib/SqlSourceGenerator.cs) 👤*Just for fun, not fully finished*
 
 #### 🆙 `DbUp`
 
