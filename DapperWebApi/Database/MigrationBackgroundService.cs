@@ -1,16 +1,16 @@
-﻿using DbUp;
+﻿using System.Reflection;
+using DbUp;
 using DbUp.Engine;
-using System.Reflection;
 
 namespace DapperWebApi.Database;
 
-public sealed class MigrationBackgroundService(IConfiguration _configuration, ILogger<MigrationBackgroundService> _logger) : BackgroundService
+public sealed class MigrationBackgroundService(
+    IConnectionStringProvider _connectionStringProvider,
+    ILogger<MigrationBackgroundService> _logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        string connectionString = _configuration.GetConnectionString("PostgreSQL")!;
-
-        await Task.Run(() => DatabaseMigration.Run(connectionString, _logger), stoppingToken);
+        await Task.Run(() => DatabaseMigration.Run(_connectionStringProvider.ConnectionString, _logger), stoppingToken);
     }
 }
 
