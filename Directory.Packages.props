@@ -1,11 +1,12 @@
 ﻿<Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="Dapper" Version="2.1.35" />
-        <PackageVersion Include="dbup-postgresql" Version="5.0.40" />
-        <PackageVersion Include="Npgsql" Version="8.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Dapper" Version="2.1.35" />
+    <PackageVersion Include="dbup-postgresql" Version="5.0.40" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Npgsql" Version="8.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+  </ItemGroup>
 </Project>

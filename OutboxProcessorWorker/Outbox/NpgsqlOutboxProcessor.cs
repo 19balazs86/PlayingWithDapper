@@ -8,7 +8,7 @@ public sealed class NpgsqlOutboxProcessor : OutboxProcessorBase
 {
     private readonly NpgsqlDataSource _npgsqlDataSource;
 
-    protected override string _querySql { get; set; } =
+    protected override string _querySql { get; } =
         """
         SELECT id AS Id, type AS Type, content AS Content
         FROM outbox_messages
@@ -18,7 +18,7 @@ public sealed class NpgsqlOutboxProcessor : OutboxProcessorBase
         FOR UPDATE -- SKIP LOCKED -- If you require parallel processing
         """;
 
-    protected override string _updateSql { get; set; } =
+    protected override string _updateSql { get; } =
         """
         UPDATE outbox_messages
         SET processed_on_utc = v.processed_on_utc,

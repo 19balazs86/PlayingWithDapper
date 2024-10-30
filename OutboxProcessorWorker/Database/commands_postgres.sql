@@ -33,3 +33,25 @@ SET processed_on_utc = v.processed_on_utc,
     (@Id999, @ProcessedOn999, @Error999)
 ) AS v(id, processed_on_utc, error)
 WHERE outbox_messages.id = v.id::uuid
+
+--> Create a Composite Type
+CREATE TYPE outbox_update_type AS (
+    id UUID,
+    processed_on_utc TIMESTAMP WITH TIME ZONE,
+    error TEXT
+    );
+
+--> Create procedure that takes the outbox_update_type Composite Type as input and updates the outboxmessages table
+CREATE OR REPLACE PROCEDURE update_outbox_messages(update_data outbox_update_type[])
+LANGUAGE plpgsql AS $$
+BEGIN
+    -- Update the OutboxMessages table
+    UPDATE outboxmessages OM
+    SET
+        OM.processed_on_utc = ud.processed_on_utc,
+        OM.error = ud.error
+        FROM unnest(update_data) AS ud
+    WHERE
+        OM.id = ud.id;
+END;
+$$;
