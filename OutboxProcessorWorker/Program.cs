@@ -31,15 +31,15 @@ public static class Program
     {
         services.AddSingleton<IConnectionStringProvider, NpgsqlConnectionStringProvider>();
         services.AddSingleton<IDatabaseInitializer,      NpgsqlDatabaseInitializer>();
-        services.AddScoped<IOutboxProcessor,             NpgsqlOutboxProcessor>();
+        services.AddScoped<IOutboxProcessor,             OutboxProcessorNpgsql>();
     }
 
     private static void addOutboxForSqlServer(this IServiceCollection services)
     {
         services.AddSingleton<IConnectionStringProvider, SqlServerConnectionStringProvider>();
         services.AddSingleton<IDatabaseInitializer,      SqlServerDatabaseInitializer>();
-        // services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessor>();
-        services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessorWithStoredProc>();
+        // services.AddScoped<IOutboxProcessor,             OutboxProcessorSqlServer>();
+        services.AddScoped<IOutboxProcessor,             OutboxProcessorSqlServerWithStoredProc>();
     }
 
     private static async Task setupDatabase(this IHost host)

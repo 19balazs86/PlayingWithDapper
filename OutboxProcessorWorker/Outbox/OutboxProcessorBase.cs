@@ -9,7 +9,7 @@ namespace OutboxProcessorWorker.Outbox;
 
 public abstract class OutboxProcessorBase(ILogger<OutboxProcessorBase> _logger, IMessagePublisher _messagePublisher) : IOutboxProcessor
 {
-    protected int _batchSize = 1_000;
+    protected virtual int _batchSize => 1_000;
 
     private static readonly ConcurrentDictionary<string, Type> _typeCache = new();
 

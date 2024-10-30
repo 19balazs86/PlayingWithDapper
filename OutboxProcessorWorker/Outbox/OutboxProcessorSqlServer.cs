@@ -4,11 +4,15 @@ using OutboxProcessorWorker.Database;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public sealed class SqlServerOutboxProcessor(
+public class OutboxProcessorSqlServer(
     IConnectionStringProvider _connectionStringProvider,
-    ILogger<SqlServerOutboxProcessor> _logger,
+    ILogger<OutboxProcessorSqlServer> _logger,
     IMessagePublisher _messagePublisher) : OutboxProcessorBase(_logger, _messagePublisher)
 {
+    // SqlClient.SqlException: The incoming request has too many parameters. The server supports a maximum of 2100 parameters
+    // Too many parameters generated in the MERGE INTO statement
+    protected override int _batchSize => 650;
+
     protected override string _querySql { get; } =
         """
         SELECT TOP (@BatchSize) [Id], [Type], [Content]
@@ -32,10 +36,6 @@ public sealed class SqlServerOutboxProcessor(
 
     protected override async Task<DbConnection> openConnection(CancellationToken ct = default)
     {
-        // SqlClient.SqlException (0x80131904): The incoming request has too many parameters.
-        // The server supports a maximum of 2100 parameters. Reduce the number of parameters and resend the request.
-        _batchSize = 650;
-
         var connection = new SqlConnection(_connectionStringProvider.ConnectionString);
 
         await connection.OpenAsync(ct);

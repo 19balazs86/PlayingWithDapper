@@ -4,9 +4,9 @@ using OutboxProcessorWorker.Database;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public sealed class NpgsqlOutboxProcessor(
+public sealed class OutboxProcessorNpgsql(
     IConnectionStringProvider _connectionStringProvider,
-    ILogger<NpgsqlOutboxProcessor> _logger,
+    ILogger<OutboxProcessorNpgsql> _logger,
     IMessagePublisher _messagePublisher) : OutboxProcessorBase(_logger, _messagePublisher)
 {
     private readonly string _connectionString = _connectionStringProvider.ConnectionString;
