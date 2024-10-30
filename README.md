@@ -1,6 +1,7 @@
 # Playing with Dapper
 
 - This repository contains 2 projects for working with Dapper on PostgreSQL and SQL Server
+- Using Dapper definitely makes life easier, especially for mapping entities, but I faced some issues when using it with Postgres compared to SQL Server, which was much smoother
 
 ## Projects in the solution
 
@@ -16,7 +17,6 @@
 - I adapted the Postgres database solution for use on SQL server
 - For the update, with the MERGE INTO statement, I encountered the issue of SQL Server's 2100 parameter limit
 - While solving that issue, I realized I could improve update performance by using a User-Defined Table Type and Stored Procedure
-- Eventually, I implemented the solution for both PostgreSQL and SQL Server using Dapper
 
 ## Resources
 

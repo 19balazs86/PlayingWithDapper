@@ -1,72 +1,61 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using Dapper;
+using DbUp;
+using DbUp.Engine;
 using Npgsql;
 using NpgsqlTypes;
 using OutboxProcessorWorker.Domain;
 
 namespace OutboxProcessorWorker.Database;
 
-public sealed class NpgsqlDatabaseInitializer : IDatabaseInitializer
+public sealed class NpgsqlDatabaseInitializer(
+    IConnectionStringProvider _connectionStringProvider,
+    ILogger<NpgsqlDatabaseInitializer> _logger) : IDatabaseInitializer
 {
-    private readonly ILogger<NpgsqlDatabaseInitializer> _logger;
-    private readonly NpgsqlDataSource _npgsqlDataSource;
-
-    public NpgsqlDatabaseInitializer(IConnectionStringProvider connectionStringProvider, ILogger<NpgsqlDatabaseInitializer> logger)
-    {
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionStringProvider.ConnectionString);
-
-        _logger           = logger;
-        _npgsqlDataSource = dataSourceBuilder.Build();
-    }
+    private readonly string _connectionString = _connectionStringProvider.ConnectionString;
 
     public async Task Execute()
     {
-        try
-        {
-            _logger.LogInformation("Starting database initialization.");
+        _logger.LogInformation("Starting database initialization.");
 
-            await initializeDatabase();
+        initializeDatabase();
 
-            await seedInitialData();
+        await seedInitialData();
 
-            _logger.LogInformation("Database initialization completed successfully.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while initializing the database.");
-        }
+        _logger.LogInformation("Database initialization completed successfully.");
     }
 
-    private async Task initializeDatabase()
+    private void initializeDatabase()
     {
-        const string sql =
-            """
-            -- Create outbox_messages table if it does not exist
-            CREATE TABLE IF NOT EXISTS outbox_messages (
-                id UUID PRIMARY KEY,
-                type VARCHAR(255) NOT NULL,
-                content JSONB NOT NULL,
-                occurred_on_utc TIMESTAMP WITH TIME ZONE NOT NULL,
-                processed_on_utc TIMESTAMP WITH TIME ZONE NULL,
-                error TEXT NULL
-            );
-            
-            -- Create a filtered index on unprocessed messages, including all necessary columns
-            CREATE INDEX IF NOT EXISTS idx_outbox_messages_unprocessed 
-                ON outbox_messages (occurred_on_utc, processed_on_utc)
-                INCLUDE (id, type, content)
-                WHERE processed_on_utc IS NULL;
-            """;
+        EnsureDatabase.For.PostgresqlDatabase(_connectionString);
 
-        await using NpgsqlConnection connection = await _npgsqlDataSource.OpenConnectionAsync();
+        UpgradeEngine upgrader = DeployChanges.To
+            .PostgresqlDatabase(_connectionString)
+            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => scriptName.Contains("postgres_"))
+            .JournalToPostgresqlTable("public", "__migrations_history")
+            .WithTransaction()
+            .LogToConsole()
+            .Build();
 
-        await connection.ExecuteAsync(sql);
+        DatabaseUpgradeResult result = upgrader.PerformUpgrade();
+
+        if (result.Successful)
+        {
+            _logger.LogInformation("Database upgrade completed successfully");
+        }
+        else
+        {
+            _logger.LogError("Database upgrade failed with error: '{Error}'", result.Error);
+        }
     }
 
     private async Task seedInitialData()
     {
-        await using NpgsqlConnection connection = await _npgsqlDataSource.OpenConnectionAsync();
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        await connection.OpenAsync();
 
         _logger.LogInformation("Deleting existing records from outbox_messages table.");
         await connection.ExecuteAsync("TRUNCATE TABLE outbox_messages");

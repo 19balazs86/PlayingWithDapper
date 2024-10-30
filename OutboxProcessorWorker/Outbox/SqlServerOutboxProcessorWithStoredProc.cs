@@ -44,14 +44,13 @@ public sealed class SqlServerOutboxProcessorWithStoredProc(
         // Create a DataTable to represent the TVP
         var dataTable = new DataTable();
 
-        dataTable.Columns.Add(nameof(OutboxMessage.Id),             typeof(Guid));
-        dataTable.Columns.Add(nameof(OutboxMessage.ProcessedOnUtc), typeof(DateTime));
-        dataTable.Columns.Add(nameof(OutboxMessage.Error),          typeof(string));
+        dataTable.Columns.Add(nameof(OutboxMessage.Id),    typeof(Guid));
+        dataTable.Columns.Add(nameof(OutboxMessage.Error), typeof(string));
 
         // Add data to the DataTable
         foreach (OutboxUpdate outboxUpdate in updateQueue)
         {
-            dataTable.Rows.Add(outboxUpdate.Id, DateTime.UtcNow, outboxUpdate.Error);
+            dataTable.Rows.Add(outboxUpdate.Id, outboxUpdate.Error);
         }
 
         var parameters = new DynamicParameters();
@@ -67,13 +66,13 @@ public sealed class SqlServerOutboxProcessorWithStoredProc(
         // command!.CommandType = CommandType.StoredProcedure;
         // command.CommandText  = "UpdateOutboxMessages";
         // command.Transaction  = transaction as SqlTransaction;
-
-        // Add the TVP parameter
-        // SqlParameter tvpParameter = command.Parameters.AddWithValue("UpdateData", errorLogTable);
+        //
+        // // Add the TVP parameter
+        // SqlParameter tvpParameter = command.Parameters.AddWithValue("UpdateData", dataTable);
         // tvpParameter.SqlDbType    = SqlDbType.Structured;
         // tvpParameter.TypeName     = "OutboxUpdateType"; // Make sure this is the correct user-defined table type name in the SQL Server
-
-        // Execute the stored procedure
+        //
+        // // Execute the stored procedure
         // command.ExecuteNonQuery();
     }
 }

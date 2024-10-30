@@ -4,9 +4,12 @@ using OutboxProcessorWorker.Database;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public sealed class NpgsqlOutboxProcessor : OutboxProcessorBase
+public sealed class NpgsqlOutboxProcessor(
+    IConnectionStringProvider _connectionStringProvider,
+    ILogger<NpgsqlOutboxProcessor> _logger,
+    IMessagePublisher _messagePublisher) : OutboxProcessorBase(_logger, _messagePublisher)
 {
-    private readonly NpgsqlDataSource _npgsqlDataSource;
+    private readonly string _connectionString = _connectionStringProvider.ConnectionString;
 
     protected override string _querySql { get; } =
         """
@@ -29,18 +32,15 @@ public sealed class NpgsqlOutboxProcessor : OutboxProcessorBase
         WHERE outbox_messages.id = v.id::uuid
         """;
 
-    public NpgsqlOutboxProcessor(
-        IConnectionStringProvider connectionStringProvider,
-        ILogger<NpgsqlOutboxProcessor> logger,
-        IMessagePublisher messagePublisher) : base(logger, messagePublisher)
-    {
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionStringProvider.ConnectionString);
-
-        _npgsqlDataSource = dataSourceBuilder.Build();
-    }
-
     protected override async Task<DbConnection> openConnection(CancellationToken ct = default)
     {
-        return await _npgsqlDataSource.OpenConnectionAsync(ct);
+        var connection = new NpgsqlConnection(_connectionString);
+
+        await connection.OpenAsync(ct);
+
+        return connection;
+
+        // This thrown exception due to too many connections for approximately 100,000 records
+        // return await _npgsqlDataSource.OpenConnectionAsync(ct);
     }
 }

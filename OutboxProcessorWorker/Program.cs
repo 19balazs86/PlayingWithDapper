@@ -12,8 +12,8 @@ public static class Program
 
         // Add services to the container
         {
-            services.addOutboxForNpgsql();
-            // services.addOutboxForSqlServer();
+            // services.addOutboxForNpgsql();
+            services.addOutboxForSqlServer();
 
             services.AddHostedService<OutboxBackgroundWorker>();
 
@@ -38,8 +38,8 @@ public static class Program
     {
         services.AddSingleton<IConnectionStringProvider, SqlServerConnectionStringProvider>();
         services.AddSingleton<IDatabaseInitializer,      SqlServerDatabaseInitializer>();
-        services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessor>();
-        // services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessorWithStoredProc>();
+        // services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessor>();
+        services.AddScoped<IOutboxProcessor,             SqlServerOutboxProcessorWithStoredProc>();
     }
 
     private static async Task setupDatabase(this IHost host)

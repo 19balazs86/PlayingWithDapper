@@ -1,7 +1,10 @@
 using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using Dapper;
+using DbUp;
+using DbUp.Engine;
 using Microsoft.Data.SqlClient;
 using OutboxProcessorWorker.Domain;
 
@@ -11,68 +14,48 @@ public sealed class SqlServerDatabaseInitializer(
     IConnectionStringProvider _connectionStringProvider,
     ILogger<NpgsqlDatabaseInitializer> _logger) : IDatabaseInitializer
 {
+    private readonly string _connectionString = _connectionStringProvider.ConnectionString;
+
     private static int _totalInsertedRecords = 0;
 
     public async Task Execute()
     {
-        try
-        {
-            _logger.LogInformation("Starting database initialization.");
+        _logger.LogInformation("Starting database initialization.");
 
-            await initializeDatabase();
+        initializeDatabase();
 
-            await seedInitialData();
+        await seedInitialData();
 
-            _logger.LogInformation("Database initialization completed successfully.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while initializing the database.");
-        }
+        _logger.LogInformation("Database initialization completed successfully.");
     }
 
-    private async Task initializeDatabase()
+    private void initializeDatabase()
     {
-        const string sql =
-            """
-            -- Create OutboxMessages table if it does not exist
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'OutboxMessages')
-            BEGIN
-            CREATE TABLE OutboxMessages (
-                [Id] UNIQUEIDENTIFIER PRIMARY KEY,
-                [Type] VARCHAR(255) NOT NULL,
-                [Content] VARCHAR(MAX) NOT NULL,
-                [ProcessedOnUtc] DATETIME,
-                [Error] NVARCHAR(MAX),
-                [OccurredOnUtc] DATETIME NOT NULL
-                );
-            END
-            
-            -- Create a filtered index on unprocessed messages, including all necessary columns
-            IF NOT EXISTS (
-                SELECT 1
-                FROM sys.indexes
-                WHERE name = 'idx_OutboxMessages_unprocessed'
-                AND object_id = OBJECT_ID('dbo.OutboxMessages')
-            )
-            BEGIN
-                CREATE NONCLUSTERED INDEX idx_OutboxMessages_unprocessed
-                ON dbo.OutboxMessages ([OccurredOnUtc], [ProcessedOnUtc])
-                INCLUDE ([Id], [Type], [Content])
-                WHERE [ProcessedOnUtc] IS NULL;
-            END
-            """;
+        EnsureDatabase.For.SqlDatabase(_connectionString);
 
-        await using var connection = new SqlConnection(_connectionStringProvider.ConnectionString);
+        UpgradeEngine upgrader = DeployChanges.To
+            .SqlDatabase(_connectionString)
+            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => scriptName.Contains("sql_"))
+            .JournalToSqlTable("dbo", "__migrations_history")
+            .WithTransaction()
+            .LogToConsole()
+            .Build();
 
-        await connection.OpenAsync();
+        DatabaseUpgradeResult result = upgrader.PerformUpgrade();
 
-        await connection.ExecuteAsync(sql);
+        if (result.Successful)
+        {
+            _logger.LogInformation("Database upgrade completed successfully");
+        }
+        else
+        {
+            _logger.LogError("Database upgrade failed with error: '{Error}'", result.Error);
+        }
     }
 
     private async Task seedInitialData()
     {
-        await using (var connection = new SqlConnection(_connectionStringProvider.ConnectionString))
+        await using (var connection = new SqlConnection(_connectionString))
         {
             await connection.OpenAsync();
 
@@ -88,7 +71,7 @@ public sealed class SqlServerDatabaseInitializer(
 
         long startingTimestamp = Stopwatch.GetTimestamp();
 
-        using var bulkCopy = new SqlBulkCopy(_connectionStringProvider.ConnectionString);
+        using var bulkCopy = new SqlBulkCopy(_connectionString);
 
         bulkCopy.DestinationTableName = "OutboxMessages";
 
