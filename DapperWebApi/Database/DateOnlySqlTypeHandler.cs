@@ -22,3 +22,16 @@ public sealed class DateOnlySqlTypeHandler : SqlMapper.TypeHandler<DateOnly>
         };
     }
 }
+
+public sealed class DateTimeSqlTypeHandler : SqlMapper.TypeHandler<DateTime>
+{
+    public override void SetValue(IDbDataParameter parameter, DateTime value)
+    {
+        parameter.Value = value;
+    }
+
+    public override DateTime Parse(object value)
+    {
+        return DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
+    }
+}
