@@ -1,13 +1,14 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using Dapper;
 using OutboxProcessorWorker.Domain;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public abstract class OutboxProcessorBase(ILogger<OutboxProcessorBase> _logger, IMessagePublisher _messagePublisher) : IOutboxProcessor
+public abstract class OutboxProcessor_Base(ILogger<OutboxProcessor_Base> _logger, IMessagePublisher _messagePublisher) : IOutboxProcessor
 {
     protected virtual int _batchSize => 1_000;
 
@@ -18,12 +19,12 @@ public abstract class OutboxProcessorBase(ILogger<OutboxProcessorBase> _logger, 
 
     protected abstract Task<DbConnection> openConnection(CancellationToken ct = default);
 
-    public async Task<int> Execute(CancellationToken cancellationToken = default)
+    public async Task<int> Execute(CancellationToken ct = default)
     {
         long totalStartingTimestamp = Stopwatch.GetTimestamp();
 
-        await using DbConnection  connection  = await openConnection(cancellationToken);
-        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+        await using DbConnection  connection  = await openConnection(ct);
+        await using DbTransaction transaction = await connection.BeginTransactionAsync(ct);
 
         long stepStartingTimestamp = Stopwatch.GetTimestamp();
 
@@ -52,7 +53,7 @@ public abstract class OutboxProcessorBase(ILogger<OutboxProcessorBase> _logger, 
 
         double updateTime = Stopwatch.GetElapsedTime(stepStartingTimestamp).TotalMilliseconds;
 
-        await transaction.CommitAsync(cancellationToken);
+        await transaction.CommitAsync(ct);
 
         double totalTime = Stopwatch.GetElapsedTime(totalStartingTimestamp).TotalMilliseconds;
 
@@ -106,6 +107,8 @@ public abstract class OutboxProcessorBase(ILogger<OutboxProcessorBase> _logger, 
 
     private static Type getOrAddMessageType(string typename)
     {
-        return _typeCache.GetOrAdd(typename, name => AssemblyReference.Assembly.GetType(name)!);
+        return _typeCache.GetOrAdd(typename, name => _assembly.GetType(name)!);
     }
+
+    private static readonly Assembly _assembly = typeof(OutboxProcessor_Base).Assembly;
 }

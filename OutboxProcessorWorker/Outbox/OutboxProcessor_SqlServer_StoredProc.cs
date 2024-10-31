@@ -7,10 +7,10 @@ using OutboxProcessorWorker.Domain;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public sealed class OutboxProcessorSqlServerWithStoredProc(
+public sealed class OutboxProcessor_SqlServer_StoredProc(
     IConnectionStringProvider _connectionStringProvider,
-    ILogger<OutboxProcessorSqlServerWithStoredProc> _logger,
-    IMessagePublisher _messagePublisher) : OutboxProcessorSqlServer(_connectionStringProvider, _logger, _messagePublisher)
+    ILogger<OutboxProcessor_SqlServer_StoredProc> _logger,
+    IMessagePublisher _messagePublisher) : OutboxProcessor_SqlServer(_connectionStringProvider, _logger, _messagePublisher)
 {
     protected override int _batchSize => 1_000;
 

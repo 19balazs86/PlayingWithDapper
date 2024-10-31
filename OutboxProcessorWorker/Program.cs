@@ -12,8 +12,8 @@ public static class Program
 
         // Add services to the container
         {
-            // services.addOutboxForNpgsql();
-            services.addOutboxForSqlServer();
+            // services.addOutbox_For_Npgsql();
+            services.addOutbox_For_SqlServer();
 
             services.AddHostedService<OutboxBackgroundWorker>();
 
@@ -27,19 +27,19 @@ public static class Program
         await host.RunAsync();
     }
 
-    private static void addOutboxForNpgsql(this IServiceCollection services)
+    private static void addOutbox_For_Npgsql(this IServiceCollection services)
     {
         services.AddSingleton<IConnectionStringProvider, NpgsqlConnectionStringProvider>();
-        services.AddSingleton<IDatabaseInitializer,      NpgsqlDatabaseInitializer>();
-        services.AddScoped<IOutboxProcessor,             OutboxProcessorNpgsql>();
+        services.AddSingleton<IDatabaseInitializer,      DatabaseInitializer_Npgsql>();
+        services.AddScoped<IOutboxProcessor,             OutboxProcessor_Npgsql>();
     }
 
-    private static void addOutboxForSqlServer(this IServiceCollection services)
+    private static void addOutbox_For_SqlServer(this IServiceCollection services)
     {
         services.AddSingleton<IConnectionStringProvider, SqlServerConnectionStringProvider>();
-        services.AddSingleton<IDatabaseInitializer,      SqlServerDatabaseInitializer>();
-        // services.AddScoped<IOutboxProcessor,             OutboxProcessorSqlServer>();
-        services.AddScoped<IOutboxProcessor,             OutboxProcessorSqlServerWithStoredProc>();
+        services.AddSingleton<IDatabaseInitializer,      DatabaseInitializer_SqlServer>();
+        // services.AddScoped<IOutboxProcessor,             OutboxProcessor_SqlServer>();
+        services.AddScoped<IOutboxProcessor,             OutboxProcessor_SqlServer_StoredProc>();
     }
 
     private static async Task setupDatabase(this IHost host)

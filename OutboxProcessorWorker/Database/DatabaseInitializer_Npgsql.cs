@@ -10,9 +10,9 @@ using OutboxProcessorWorker.Domain;
 
 namespace OutboxProcessorWorker.Database;
 
-public sealed class NpgsqlDatabaseInitializer(
+public sealed class DatabaseInitializer_Npgsql(
     IConnectionStringProvider _connectionStringProvider,
-    ILogger<NpgsqlDatabaseInitializer> _logger) : IDatabaseInitializer
+    ILogger<DatabaseInitializer_Npgsql> _logger) : IDatabaseInitializer
 {
     private readonly string _connectionString = _connectionStringProvider.ConnectionString;
 

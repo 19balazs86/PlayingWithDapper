@@ -4,10 +4,10 @@ using OutboxProcessorWorker.Database;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public class OutboxProcessorSqlServer(
+public class OutboxProcessor_SqlServer(
     IConnectionStringProvider _connectionStringProvider,
-    ILogger<OutboxProcessorSqlServer> _logger,
-    IMessagePublisher _messagePublisher) : OutboxProcessorBase(_logger, _messagePublisher)
+    ILogger<OutboxProcessor_SqlServer> _logger,
+    IMessagePublisher _messagePublisher) : OutboxProcessor_Base(_logger, _messagePublisher)
 {
     // SqlClient.SqlException: The incoming request has too many parameters. The server supports a maximum of 2100 parameters
     // Too many parameters generated in the MERGE INTO statement
@@ -24,10 +24,7 @@ public class OutboxProcessorSqlServer(
     protected override string _updateSql { get; } =
         """
         MERGE INTO OutboxMessages AS target
-        USING (VALUES
-            {0}
-        ) AS source ([Id], [ProcessedOnUtc], [Error])
-        ON target.[Id] = source.[Id]
+        USING (VALUES {0}) AS source ([Id], [ProcessedOnUtc], [Error]) ON target.[Id] = source.[Id]
         WHEN MATCHED THEN
             UPDATE SET
                 target.[ProcessedOnUtc] = source.[ProcessedOnUtc],
