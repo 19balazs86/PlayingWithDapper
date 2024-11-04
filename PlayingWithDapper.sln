@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperWebApi", "DapperWebAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutboxProcessorWorker", "OutboxProcessorWorker\OutboxProcessorWorker.csproj", "{D4DEFEF0-6873-404B-8F06-8C785396210E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrencyControlApp", "ConcurrencyControlApp\ConcurrencyControlApp.csproj", "{02C93C39-36F6-4E7B-8385-9189B8561BE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D4DEFEF0-6873-404B-8F06-8C785396210E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4DEFEF0-6873-404B-8F06-8C785396210E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4DEFEF0-6873-404B-8F06-8C785396210E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02C93C39-36F6-4E7B-8385-9189B8561BE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02C93C39-36F6-4E7B-8385-9189B8561BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02C93C39-36F6-4E7B-8385-9189B8561BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02C93C39-36F6-4E7B-8385-9189B8561BE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
