@@ -5,7 +5,7 @@ namespace DapperWebApi.Database;
 // This interface is designed for repositories to opening connection and passing the Transaction to Dapper commands
 public interface IDatabaseSession : IAsyncDisposable
 {
-    // You can use System.Data.IDbConnection and IDbTransaction to make it generic for use with other databases, such as MS SQL
+    // You can use System.Data.Common.DbConnection and DbTransaction to make it generic for use with other databases, such as MS SQL
     // Since Dapper extends IDbConnection, it will work seamlessly
 
     Task<NpgsqlConnection> OpenConnection();
