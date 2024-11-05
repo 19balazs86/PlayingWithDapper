@@ -1,11 +1,11 @@
-﻿using ConcurrencyControlApp.Examples.SqlServer;
-
-namespace ConcurrencyControlApp;
+﻿namespace ConcurrencyControlApp;
 
 public static class Program
 {
     public static async Task Main(string[] args)
     {
-        await Example.Run();
+        await Examples.SqlServer.Example.Run();
+
+        await Examples.Postgres.Example.Run();
     }
 }
