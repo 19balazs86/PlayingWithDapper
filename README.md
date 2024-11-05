@@ -21,10 +21,11 @@
 #### `ConcurrencyControlApp`
 
 - A simple console application for **optimistic concurrency** in SQL Server and Postgres
-- Both databases have built-in solutions, but they are implemented differently
-- SQL Server uses a `ROWVERSION` as a separate column in the table, while Postgres has a built-in system column called `xmin`
-- I added comments in the code for better understanding
-- The Unit of Work design pattern is implemented in a generic way that can be used for both SQL Server and Postgres to manage transactions across multiple repositories
+- Examples are available using Dapper and Entity Framework
+- Both databases has a built-in solution, but they are working differently
+- SQL Server uses a `ROWVERSION` column in the table, while Postgres has a built-in system column called `xmin`
+- The Unit of Work design pattern is implemented in a generic way that can be used for both SQL Server and Postgres to manage transactions across multiple repositories with Dapper
+- The built-in solutions work well and require no additional management effort. You could create a uniform solution by using a column like UpdatedAt, but in this case, you would need to manage it yourself. EF can assist with the IsConcurrencyToken flag.
 
 ## Resources
 

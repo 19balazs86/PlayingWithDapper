@@ -15,5 +15,7 @@ public static class InfrastructureExtension
         services.AddScoped<IDbTransactionManager>(sp => sp.GetRequiredService<IDbUnitOfWork>());
 
         services.AddScoped<IWalletRepository, WalletRepository>();
+
+        services.AddDbContext<WalletDbContext>();
     }
 }
