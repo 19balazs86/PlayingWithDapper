@@ -6,6 +6,8 @@ public static class Program
     {
         await Examples.SqlServer.Example.Run();
 
+        await Examples.SqlServer.ExampleWithEF.Run();
+
         await Examples.Postgres.Example.Run();
     }
 }
