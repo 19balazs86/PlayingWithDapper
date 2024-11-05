@@ -1,6 +1,6 @@
 # Playing with Dapper
 
-- This repository contains 2 projects for working with Dapper on PostgreSQL and SQL Server
+- This repository contains , projects for working with Dapper on PostgreSQL and SQL Server
 - Using Dapper definitely makes life easier, especially for mapping entities, but I faced some issues when using it with Postgres compared to SQL Server, which was much smoother
 
 ## Projects in the solution
@@ -17,6 +17,14 @@
 - I adapted the Postgres database solution for use on SQL server
 - For the update, with the MERGE INTO statement, I encountered the issue of SQL Server's 2100 parameter limit
 - While solving that issue, I realized I could improve update performance by using a User-Defined Table Type and Stored Procedure
+
+#### `ConcurrencyControlApp`
+
+- A simple console application for **optimistic concurrency** in SQL Server and Postgres
+- Both databases have built-in solutions, but they are implemented differently
+- SQL Server uses a `ROWVERSION` as a separate column in the table, while Postgres has a built-in system column called `xmin`
+- I added comments in the code for better understanding
+- The Unit of Work design pattern is implemented in a generic way that can be used for both SQL Server and Postgres to manage transactions across multiple repositories
 
 ## Resources
 
