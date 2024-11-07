@@ -24,6 +24,8 @@ public static class Example
         Debug.Assert(isUpdated == false);
 
         await transferMoneyBetweenWallets(serviceProvider);
+
+        await transferMoneyBetweenWalletsV2(serviceProvider);
     }
 
     private static async Task<Wallet> createNewWallet(IServiceProvider serviceProvider)
@@ -84,6 +86,37 @@ public static class Example
 
             Debug.Assert(isUpdated);
         }
+
+        if (isUpdated)
+        {
+            await transactionManager.CommitTransaction();
+        }
+        else
+        {
+            await transactionManager.RollbackTransaction();
+        }
+    }
+
+    private static async Task transferMoneyBetweenWalletsV2(ServiceProvider serviceProvider)
+    {
+        Wallet fromWallet = await createNewWallet(serviceProvider);
+        Wallet toWallet   = await createNewWallet(serviceProvider);
+
+        await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
+
+        var walletRepository   = scope.ServiceProvider.GetRequiredService<IWalletRepository>();
+        var transactionManager = scope.ServiceProvider.GetRequiredService<IDbTransactionManager>();
+
+        int money = Random.Shared.Next(1, 100);
+
+        fromWallet.Balance += money;
+        toWallet.Balance   -= money;
+
+        await transactionManager.BeginTransaction();
+
+        bool isUpdated = await walletRepository.TransferMoneyBetweenWallets(fromWallet, toWallet);
+
+        Debug.Assert(isUpdated);
 
         if (isUpdated)
         {
