@@ -37,7 +37,7 @@ public sealed class WalletRepository(IDbConnectionManager _dbConnection) : IWall
     {
         const string sql =
             """
-            UPDATE [Wallets] WITH (READPAST) -- Skip over the row that are currently locked by other transactions
+            UPDATE [Wallets] WITH (READPAST) -- Skip the row if it is currently locked by other transactions
                SET [Name] = @Name, [Balance] = @Balance
             WHERE [Id] = @Id AND [RowVersion] = @RowVersion
             """;

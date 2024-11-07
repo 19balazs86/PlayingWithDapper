@@ -38,7 +38,7 @@ public sealed class WalletRepository(IDbConnectionManager _dbConnection) : IWall
 
     public async Task<bool> Update(Wallet wallet)
     {
-        // Using this concept, skip the row currently locked by other transactions
+        // Using this concept (Common Table Expression CTE), and skip the row if currently locked by other transactions
         const string sql =
             """
             WITH locked_wallet AS (

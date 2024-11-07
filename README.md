@@ -20,7 +20,8 @@
 
 #### `ConcurrencyControlApp`
 
-- A console application with examples demonstrating **optimistic concurrency** in SQL Server and Postgres using Dapper and Entity Framework
+- A console application with examples demonstrating **optimistic concurrency** in SQL Server and Postgres
+- There are examples that use Dapper with manually written SQL commands, as well as examples that use Entity Framework
 - Both databases have built-in solutions, but they work differently
 - SQL Server uses a `ROWVERSION` column for the table, while Postgres has a built-in system column called `xmin`
 - The Unit of Work design pattern is implemented in a generic way that can be used for both SQL Server and Postgres to manage transactions across multiple repositories with Dapper
