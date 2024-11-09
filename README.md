@@ -48,7 +48,8 @@
 - [Scaling the outbox pattern using Postgres](https://www.milanjovanovic.tech/blog/scaling-the-outbox-pattern) | [Source](https://github.com/m-jovanovic/outbox-scaling)
 - [Fast SQL Bulk Inserts](https://www.milanjovanovic.tech/blog/fast-sql-bulk-inserts-with-csharp-and-ef-core) (Dapper, EF, EF Bulk Extensions, SQL Bulk Copy)
 
-#### ✨ `Miscellaneous`
+#### 🦺 `Concurrency`
 
 - [EF handling concurrency](https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=fluent-api)
 - [EF Postgres concurrency token](https://www.npgsql.org/efcore/modeling/concurrency.html?tabs=fluent-api)
+- [Resolve deadlocks when swapping numbers using RowVersion](https://youtu.be/EzXKlTyk2KU) 📽️*28 min - Zoran Horvat*
