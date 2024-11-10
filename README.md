@@ -45,6 +45,7 @@
 
 #### 🧑 `Milan's newsletter`
 
+- [Mastering Dapper relationship mappings](https://www.milanjovanovic.tech/blog/mastering-dapper-relationship-mappings)
 - [Scaling the outbox pattern using Postgres](https://www.milanjovanovic.tech/blog/scaling-the-outbox-pattern) | [Source](https://github.com/m-jovanovic/outbox-scaling)
 - [Fast SQL Bulk Inserts](https://www.milanjovanovic.tech/blog/fast-sql-bulk-inserts-with-csharp-and-ef-core) (Dapper, EF, EF Bulk Extensions, SQL Bulk Copy)
 
