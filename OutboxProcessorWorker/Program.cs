@@ -31,7 +31,8 @@ public static class Program
     {
         services.AddSingleton<IConnectionStringProvider, NpgsqlConnectionStringProvider>();
         services.AddSingleton<IDatabaseInitializer,      DatabaseInitializer_Npgsql>();
-        services.AddScoped<IOutboxProcessor,             OutboxProcessor_Npgsql>();
+        // services.AddScoped<IOutboxProcessor,             OutboxProcessor_Npgsql>();
+        services.AddScoped<IOutboxProcessor,             OutboxProcessor_Npgsql_StoredProc>();
     }
 
     private static void addOutbox_For_SqlServer(this IServiceCollection services)

@@ -1,15 +1,28 @@
-using System.Data.Common;
 using Npgsql;
 using OutboxProcessorWorker.Database;
+using System.Data.Common;
 
 namespace OutboxProcessorWorker.Outbox;
 
-public sealed class OutboxProcessor_Npgsql(
-    IConnectionStringProvider _connectionStringProvider,
-    ILogger<OutboxProcessor_Npgsql> _logger,
-    IMessagePublisher _messagePublisher) : OutboxProcessor_Base(_logger, _messagePublisher)
+public class OutboxProcessor_Npgsql : OutboxProcessor_Base
 {
-    private readonly string _connectionString = _connectionStringProvider.ConnectionString;
+    private readonly string _connectionString;
+
+    private readonly NpgsqlDataSource _npgsqlDataSource;
+
+    public OutboxProcessor_Npgsql(
+        IConnectionStringProvider       connectionStringProvider,
+        ILogger<OutboxProcessor_Npgsql> logger,
+        IMessagePublisher               messagePublisher) : base(logger, messagePublisher)
+    {
+        _connectionString = connectionStringProvider.ConnectionString;
+
+        var builder = new NpgsqlDataSourceBuilder(connectionStringProvider.ConnectionString);
+
+        builder.MapComposite<OutboxUpdateType>("outbox_update_type");
+
+        _npgsqlDataSource = builder.Build();
+    }
 
     protected override string _querySql { get; } =
         """
@@ -34,13 +47,11 @@ public sealed class OutboxProcessor_Npgsql(
 
     protected override async Task<DbConnection> openConnection(CancellationToken ct = default)
     {
-        var connection = new NpgsqlConnection(_connectionString);
-
-        await connection.OpenAsync(ct);
-
-        return connection;
+        // var connection = new NpgsqlConnection(_connectionString);
+        // await connection.OpenAsync(ct);
+        // return connection;
 
         // This thrown exception due to too many connections for approximately 100,000 records
-        // return await _npgsqlDataSource.OpenConnectionAsync(ct);
+        return await _npgsqlDataSource.OpenConnectionAsync(ct);
     }
 }

@@ -1,4 +1,4 @@
---> Create procedure that takes the outbox_update_type Composite Type as input and updates the outboxmessages table
+--> Create procedure that takes the outbox_update_type Composite Type as input and updates the outbox_messages table
 CREATE PROCEDURE update_outbox_messages(update_data outbox_update_type[])
     LANGUAGE plpgsql AS $$
 DECLARE
@@ -6,14 +6,12 @@ DECLARE
 BEGIN
     current_utc := NOW() AT TIME ZONE 'UTC';
 
-    -- Update the OutboxMessages table
-    UPDATE outboxmessages OM
+    -- Update the outbox_messages table
+    UPDATE outbox_messages
     SET
-        OM.processed_on_utc = current_utc,
-        OM.error            = ud.error
+        processed_on_utc = current_utc,
+        error            = ud.error
     FROM unnest(update_data) AS ud
-    WHERE OM.id = ud.id;
+    WHERE outbox_messages.id = ud.id;
 END;
 $$;
-
--- Eventually, this procedure is not used, because I could not get it to work when calling a stored procedure with a composite type in Postgres using Dapper
