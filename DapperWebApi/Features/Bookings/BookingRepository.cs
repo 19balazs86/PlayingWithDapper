@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using DapperWebApi.Database;
 using DapperWebApi.Features.Rooms;
+using System.Data;
 
 namespace DapperWebApi.Features.Bookings;
 
@@ -16,8 +17,6 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
 {
     #region SQL
     private const string _sqlAttemptRoomBooking = "SELECT attempt_room_booking(@RoomId, @StartDate, @EndDate, @TotalPrice)";
-
-    private const string _sqlCreatePartitionTable = "CALL create_booking_partition(@PartitionTableName, @FromDateInclusive, @ToDateExclusive)";
 
     private const string _sqlCheckIn =
         """
@@ -58,10 +57,15 @@ public sealed class BookingRepository(IDatabaseSession _dbSession) : IBookingRep
     {
         var connection = await _dbSession.OpenConnection();
 
-        await connection.ExecuteAsync(_sqlCreatePartitionTable, param: partitionDetails, transaction: _dbSession.Transaction);
+        // Note: If using DynamicParameters, the DateOnlySqlTypeHandler is not invoked. You need to set DbType.Date and convert DateOnly to DateTime.
+        var parameters = new
+        {
+            partition_table_name = partitionDetails.PartitionTableName,
+            from_date_inclusive  = partitionDetails.FromDateInclusive,
+            to_date_exclusive    = partitionDetails.ToDateExclusive,
+        };
 
-        // I had an issue: procedure create_booking_partition(...) does not exist
-        // await connection.ExecuteAsync("create_booking_partition", parameters, commandType: CommandType.StoredProcedure, transaction: _dbSession.Transaction);
+        await connection.ExecuteAsync("create_booking_partition", parameters, _dbSession.Transaction, commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int?> CheckIn(int bookingId)

@@ -1,5 +1,5 @@
-using System.Data;
 using Dapper;
+using System.Data;
 
 namespace DapperWebApi.Database;
 
@@ -7,8 +7,8 @@ public sealed class DateOnlySqlTypeHandler : SqlMapper.TypeHandler<DateOnly>
 {
     public override void SetValue(IDbDataParameter parameter, DateOnly value)
     {
-        // Store as DateTime to the database
-        parameter.Value = value.ToDateTime(TimeOnly.MinValue);
+        parameter.DbType = DbType.Date;
+        parameter.Value  = DateTime.SpecifyKind(value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
     }
 
     public override DateOnly Parse(object value)
