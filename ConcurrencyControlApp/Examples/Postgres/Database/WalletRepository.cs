@@ -63,6 +63,7 @@ public sealed class WalletRepository(IDbConnectionManager _dbConnection) : IWall
     public async Task<bool> TransferMoneyBetweenWallets(Wallet fromWallet, Wallet toWallet)
     {
         // Better solution is a combination of a Composite Type and a Stored Procedure
+        // You can even update a list of wallets, as there is no logic in the SQL script other than the update
         // All in all, there are multiple ways to perform this transfer, but the focus is on using RowVersion
         const string sql =
             """
@@ -80,7 +81,7 @@ public sealed class WalletRepository(IDbConnectionManager _dbConnection) : IWall
                 FOR UPDATE SKIP LOCKED
             )
             UPDATE wallets
-            SET balance = locked_wallet.balance
+                SET balance = locked_wallet.balance
             FROM locked_wallet
             WHERE wallets.id = locked_wallet.id;
             """;

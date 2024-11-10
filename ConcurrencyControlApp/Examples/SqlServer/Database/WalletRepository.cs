@@ -51,7 +51,8 @@ public sealed class WalletRepository(IDbConnectionManager _dbConnection) : IWall
 
     public async Task<bool> TransferMoneyBetweenWallets(Wallet fromWallet, Wallet toWallet)
     {
-        // Better solution is a combination of a User-Defined Table Type and a stored procedure
+        // Better solution is a combination of a User-Defined Table Type and a Stored Procedure
+        // You can even update a list of wallets, as there is no logic in the SQL script other than the update
         // All in all, there are multiple ways to perform this transfer, but the focus is on using RowVersion
         const string sql =
             """
