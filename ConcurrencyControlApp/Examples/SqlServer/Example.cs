@@ -68,6 +68,8 @@ public static class Example
 
         await transactionManager.BeginTransaction();
 
+        // Generally, it is good practice to update records in a consistent order, such as by Wallet.ID, to avoid deadlock situations like the one described in the EF example
+        // However, the update uses the READPAST hint to skip records that are already locked, based on the assumption that a locked record is likely to be modified
         bool isUpdated = await walletRepository.Update(fromWallet);
 
         Debug.Assert(isUpdated);
