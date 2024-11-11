@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -39,14 +39,12 @@ public sealed class ExampleDbContext(DbContextOptions _options) : DbContext(_opt
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
-        EntityEntry<ExampleEntity>[] entityEntries = ChangeTracker
+        // Using SaveChangesInterceptor is a more preferred approach, see the EntityBaseInterceptor class
+        ChangeTracker
             .Entries<ExampleEntity>()
-            .Where(x => x.State is EntityState.Added or EntityState.Modified).ToArray();
-
-        foreach (EntityEntry<ExampleEntity> entityEntry in entityEntries)
-        {
-            entityEntry.Entity.Version = Guid.NewGuid();
-        }
+            .Where(x => x.State is EntityState.Added or EntityState.Modified)
+            .ToList()
+            .ForEach(entityEntry => entityEntry.Entity.Version = Guid.NewGuid());
 
         return base.SaveChangesAsync(ct);
     }
@@ -82,5 +80,32 @@ public abstract class EntityBaseTypeConfiguration<TEntityBase> : IEntityTypeConf
     {
         builder.Property(p => p.Version)
                .IsConcurrencyToken();
+    }
+}
+
+// Examples to use EF Interceptor
+// https://github.com/19balazs86/PlayingWithTestContainers/blob/master/WebAPI/Infrastructure/EntityFrameworkServiceCollectionExtensions.cs#L36
+public sealed class EntityBaseInterceptor : SaveChangesInterceptor
+{
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+        DbContextEventData      eventData,
+        InterceptionResult<int> result,
+        CancellationToken       ct = default)
+    {
+        if (eventData.Context is not null)
+        {
+            setNewVersion(eventData.Context);
+        }
+
+        return base.SavingChangesAsync(eventData, result, ct);
+    }
+
+    private static void setNewVersion(DbContext dbContext)
+    {
+        dbContext.ChangeTracker
+                 .Entries<EntityBase>()
+                 .Where(entity => entity.State == EntityState.Added)
+                 .ToList()
+                 .ForEach(entityEntry => entityEntry.Entity.Version = Guid.NewGuid());
     }
 }
