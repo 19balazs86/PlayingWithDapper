@@ -23,7 +23,8 @@
 - There are examples that use Dapper with manually written SQL commands, as well as examples that use Entity Framework
 - Both databases have built-in solutions, but they work differently
 - SQL Server uses a type of `ROWVERSION` column for the table, while Postgres has a built-in system column called `xmin`
-- Both works well and require no additional management effort. You could create a custom uniform solution by using a column like UpdatedAt, but in this case, you would need to manage it yourself. EF can assist with the IsConcurrencyToken flag.
+- Both works well and require no additional management effort
+- You could create a unified solution for SQL Server and Postgres by using a column like UpdatedAt as a DateTime or Version as a Guid. However, in this case, you would need to manage the version manually. Fortunately, EF can assist with this, as [shown in this example](ConcurrencyControlApp/Common/CustomConcurrencyToken.cs).
 - The Unit of Work design pattern is implemented in a generic way that can be used for both SQL Server and Postgres with Dapper
 
 ## Resources
