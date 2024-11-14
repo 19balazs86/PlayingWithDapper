@@ -27,8 +27,14 @@ public sealed class OutboxProcessor_Npgsql_StoredProc(
     }
 }
 
-public sealed class OutboxUpdateType(Guid _id, string? _error)
+public sealed class OutboxUpdateType
 {
-    public Guid    Id    { get; init; } = _id;
-    public string? Error { get; init; } = _error;
+    public OutboxUpdateType(Guid id, string? error) // Note: After updating to .NET 9, Dapper encounters an issue with the primary constructor
+    {
+        Id    = id;
+        Error = error;
+    }
+
+    public Guid    Id    { get; init; }
+    public string? Error { get; init; }
 }
