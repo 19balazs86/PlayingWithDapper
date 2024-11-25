@@ -53,4 +53,5 @@
 
 - [EF handling concurrency](https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=fluent-api)
 - [EF Postgres concurrency token](https://www.npgsql.org/efcore/modeling/concurrency.html?tabs=fluent-api)
+- [EF Pessimistic Locking](https://code-maze.com/dotnet-optimistic-locking-vs-pessimistic-locking) *(RowVersion, ConcurrencyToken)* 📓*Code-Maze*
 - [Resolve deadlocks when swapping numbers using RowVersion](https://youtu.be/EzXKlTyk2KU) 📽️*28 min - Zoran Horvat*
