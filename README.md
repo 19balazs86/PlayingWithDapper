@@ -58,6 +58,7 @@
 
 #### ✨ `Miscellaneous`
 
+- [InterpolatedSql.Dapper](https://github.com/Drizin/InterpolatedSql/tree/main/src/InterpolatedSql.Dapper#quickstart-and-examples) 👤*Drizin*
 - [Delta](https://github.com/SimonCropp/Delta) 👤*Simon Cropp*
   - Implementing a 304 Not Modified response by leveraging SqlServer RowVersion to generate an ETag
   - [Improve DB performance by using Delta](https://youtu.be/sLoTReccvPw) 📽️*9 min - Nick Chapsas*
